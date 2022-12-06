@@ -1,8 +1,8 @@
-import React, { StrictMode, Suspense, useEffect } from 'react'
+import React, { StrictMode, Suspense } from 'react'
 import { fireEvent, render, waitFor } from '@testing-library/react'
 import type { Client } from '@urql/core'
-import { atom, useAtom } from 'jotai'
-import { loadable } from 'jotai/utils'
+import { useAtom } from 'jotai/react'
+import { atom } from 'jotai/vanilla'
 import { fromValue, pipe, take, toPromise } from 'wonka'
 import { atomsWithMutation } from '../src/index'
 
@@ -67,14 +67,12 @@ it('mutation basic test', async () => {
 describe('error handling', () => {
   it('mutation error test', async () => {
     const client = generateClient(() => true)
-    const [countAtom, statusAtom] = atomsWithMutation<
+    const [countAtom] = atomsWithMutation<
       { count: number },
       Record<string, never>
     >(() => client)
-    const mutateAtom = atom(
-      (get) => get(loadable(statusAtom)),
-      (_get, set) =>
-        set(countAtom, { query: 'mutation Test { count }', variables: {} })
+    const mutateAtom = atom(null, (_get, set) =>
+      set(countAtom, { query: 'mutation Test { count }', variables: {} })
     )
 
     const Counter = () => {
@@ -88,15 +86,12 @@ describe('error handling', () => {
 
     let errored = false
     const Controls = () => {
-      const [status, mutate] = useAtom(mutateAtom)
-      // TODO revisit this with jotai v2
-      useEffect(() => {
-        if (status.state === 'hasData' && status.data?.error) {
+      const [, mutate] = useAtom(mutateAtom)
+      const handleClick = async () => {
+        const result = await mutate()
+        if (result.error) {
           errored = true
         }
-      }, [status])
-      const handleClick = async () => {
-        await mutate()
       }
       return <button onClick={handleClick}>mutate</button>
     }

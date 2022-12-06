@@ -1,5 +1,5 @@
 import { createClient } from '@urql/core'
-import { atom } from 'jotai'
+import { atom } from 'jotai/vanilla'
 
 const DEFAULT_URL =
   (() => {

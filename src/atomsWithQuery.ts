@@ -6,7 +6,7 @@ import type {
   TypedDocumentNode,
 } from '@urql/core'
 import { DocumentNode } from 'graphql'
-import type { Getter, WritableAtom } from 'jotai'
+import type { Getter, WritableAtom } from 'jotai/vanilla'
 import { clientAtom } from './clientAtom'
 import { createAtoms } from './common'
 
@@ -20,8 +20,12 @@ export function atomsWithQuery<Data, Variables extends AnyVariables>(
   getContext?: (get: Getter) => Partial<OperationContext>,
   getClient: (get: Getter) => Client = (get) => get(clientAtom)
 ): readonly [
-  dataAtom: WritableAtom<Data, Action>,
-  statusAtom: WritableAtom<OperationResult<Data, Variables> | undefined, Action>
+  dataAtom: WritableAtom<Data | Promise<Data>, [Action], void>,
+  statusAtom: WritableAtom<
+    OperationResult<Data, Variables> | undefined,
+    [Action],
+    void
+  >
 ] {
   return createAtoms(
     (get) => [query, getVariables(get), getContext?.(get)] as const,

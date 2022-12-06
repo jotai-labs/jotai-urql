@@ -6,7 +6,7 @@ import type {
   TypedDocumentNode,
 } from '@urql/core'
 import { DocumentNode } from 'graphql'
-import type { Getter, WritableAtom } from 'jotai'
+import type { Getter, WritableAtom } from 'jotai/vanilla'
 import { makeSubject } from 'wonka'
 import type { Subject } from 'wonka'
 import { clientAtom } from './clientAtom'
@@ -21,11 +21,15 @@ type Action<Data, Variables extends AnyVariables> = {
 export function atomsWithMutation<Data, Variables extends AnyVariables>(
   getClient: (get: Getter) => Client = (get) => get(clientAtom)
 ): readonly [
-  dataAtom: WritableAtom<Data, Action<Data, Variables>, Promise<void>>,
+  dataAtom: WritableAtom<
+    Data | Promise<Data>,
+    [Action<Data, Variables>],
+    Promise<OperationResult<Data, Variables>>
+  >,
   statusAtom: WritableAtom<
     OperationResult<Data, Variables> | undefined,
-    Action<Data, Variables>,
-    Promise<void>
+    [Action<Data, Variables>],
+    Promise<OperationResult<Data, Variables>>
   >
 ] {
   type Result = OperationResult<Data, Variables>
@@ -48,6 +52,7 @@ export function atomsWithMutation<Data, Variables extends AnyVariables>(
         .toPromise()
       const subject = subjectCache.get(client)
       subject?.next(result)
+      return result
     }
   )
 }

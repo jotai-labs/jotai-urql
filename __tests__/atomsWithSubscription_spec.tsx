@@ -2,7 +2,8 @@ import React, { Component, StrictMode, Suspense } from 'react'
 import type { ReactNode } from 'react'
 import { fireEvent, render } from '@testing-library/react'
 import type { Client, TypedDocumentNode } from '@urql/core'
-import { atom, useAtom, useSetAtom } from 'jotai'
+import { useAtom, useSetAtom } from 'jotai/react'
+import { atom } from 'jotai/vanilla'
 import { makeSubject, map, pipe } from 'wonka'
 import type { Source } from 'wonka'
 import { atomsWithSubscription } from '../src/index'
@@ -159,7 +160,7 @@ it('null client suspense', async () => {
     (get) => get(clientAtom) as Client
   )
   // Derived Atom to safe guard when client is null
-  const guardedCountAtom = atom((get): { id: string; count: number } | null => {
+  const guardedCountAtom = atom((get) => {
     const client = get(clientAtom)
     if (client === null) return null
     return get(countAtom)

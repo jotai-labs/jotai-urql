@@ -1,7 +1,8 @@
 import React, { Suspense } from 'react'
 import { createClient } from '@urql/core'
-import { atom, useAtom } from 'jotai'
 import { atomsWithQuery } from 'jotai-urql'
+import { useAtom } from 'jotai/react'
+import { atom } from 'jotai/vanilla'
 
 const client = createClient({ url: 'https://countries.trevorblades.com/' })
 
